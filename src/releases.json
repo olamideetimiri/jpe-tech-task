@@ -1,0 +1,23 @@
+[
+  {
+    "service": "payments-api",
+    "version": "1.4.2",
+    "environment": "production",
+    "status": "healthy",
+    "deployedAt": "2026-05-01T10:30:00Z"
+  },
+  {
+    "service": "customer-portal",
+    "version": "2.1.0",
+    "environment": "staging",
+    "status": "degraded",
+    "deployedAt": "2026-05-01T09:15:00Z"
+  },
+  {
+    "service": "reporting-worker",
+    "version": "0.9.8",
+    "environment": "production",
+    "status": "unknown",
+    "deployedAt": "2026-04-30T16:45:00Z"
+  }
+]
