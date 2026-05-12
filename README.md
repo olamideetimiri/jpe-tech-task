@@ -75,6 +75,8 @@ The `infra/` folder contains a small Terraform example for discussion.
 
 You do not need to deploy this infrastructure or have AWS credentials.
 
+The infra will host the application.
+
 Please review it as part of the task and include any observations, concerns, or improvements in your notes.
 
 ---
