@@ -1,6 +1,6 @@
 ## Submission
 
-I have sent you:
+I have sent you via email:
 
 * a link to my forked repository
 * a short README describing:
