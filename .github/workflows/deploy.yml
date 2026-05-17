@@ -1,20 +1,55 @@
 name: Deploy Release Status Dashboard
 
 on:
+  pull_request:
   push:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  deploy:
+  test-build-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Run test suite
+        run: npm test
+
+      - name: Build Docker image
+        run: docker build -t release-status-dashboard .
+
+      - name: Run Docker container
+        run: docker run -d -p 3000:3000 --name release-status-dashboard release-status-dashboard
+
+      - name: Smoke test container
+        run: |
+          for i in {1..10}; do
+            curl --fail http://localhost:3000/health && exit 0
+            sleep 1
+          done
+
+          echo "Container did not become healthy. Showing logs:"
+          docker logs release-status-dashboard
+          exit 1
+
+      - name: Stop Docker container
+        if: always()
+        run: docker rm -f release-status-dashboard
 
       - name: Deploy application
-        run: ./deploy.sh
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: chmod +x .github/workflows/deploy.sh && .github/workflows/deploy.sh
