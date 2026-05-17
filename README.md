@@ -2,10 +2,10 @@
 
 I have sent you:
 
-* a link to your forked repository
+* a link to my forked repository
 * a short README describing:
 
-  * how you ran the application
-  * any issues or improvements you identified
-  * any changes you made and why
-  * any additional improvements you would make with more time
+  * how I ran the application
+  * any issues or improvements I identified
+  * any changes I made and why
+  * any additional improvements I would make with more time
