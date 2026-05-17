@@ -7,6 +7,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 const appName = process.env.APP_NAME || "Release Status Dashboard";
 const environment = process.env.NODE_ENV || "development";
+const debug = process.env.DEBUG === "true";
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
 
 function getReleases() {
   const filePath = path.join(__dirname, "releases.json");
@@ -15,44 +25,49 @@ function getReleases() {
 }
 
 app.get("/", (req, res) => {
-  const releases = getReleases();
+  try {
+    const releases = getReleases();
 
-  const rows = releases
-    .map(
-      (release) => `
-        <tr>
-          <td>${release.service}</td>
-          <td>${release.version}</td>
-          <td>${release.environment}</td>
-          <td>${release.status}</td>
-          <td>${release.deployedAt}</td>
-        </tr>
-      `
-    )
-    .join("");
-
-  res.send(`
-    <html>
-      <head>
-        <title>${appName}</title>
-      </head>
-      <body>
-        <h1>${appName}</h1>
-        <p>Environment: ${environment}</p>
-
-        <table border="1" cellpadding="8">
+    const rows = releases
+      .map(
+        (release) => `
           <tr>
-            <th>Service</th>
-            <th>Version</th>
-            <th>Environment</th>
-            <th>Status</th>
-            <th>Deployed At</th>
+            <td>${escapeHtml(release.service)}</td>
+            <td>${escapeHtml(release.version)}</td>
+            <td>${escapeHtml(release.environment)}</td>
+            <td>${escapeHtml(release.status)}</td>
+            <td>${escapeHtml(release.deployedAt)}</td>
           </tr>
-          ${rows}
-        </table>
-      </body>
-    </html>
-  `);
+        `
+      )
+      .join("");
+
+    res.send(`
+      <html>
+        <head>
+          <title>${escapeHtml(appName)}</title>
+        </head>
+        <body>
+          <h1>${escapeHtml(appName)}</h1>
+          <p>Environment: ${escapeHtml(environment)}</p>
+
+          <table border="1" cellpadding="8">
+            <tr>
+              <th>Service</th>
+              <th>Version</th>
+              <th>Environment</th>
+              <th>Status</th>
+              <th>Deployed At</th>
+            </tr>
+            ${rows}
+          </table>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error("Failed to load release data:", error);
+    res.status(500).send("Failed to load release data");
+  }
 });
 
 app.get("/health", (req, res) => {
@@ -65,7 +80,14 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/api/releases", (req, res) => {
-  res.json(getReleases());
+  try {
+    res.json(getReleases());
+  } catch (error) {
+    console.error("Failed to load release data:", error);
+    res.status(500).json({
+      error: "Failed to load release data"
+    });
+  }
 });
 
 app.get("/api/config", (req, res) => {
@@ -73,7 +95,7 @@ app.get("/api/config", (req, res) => {
     appName,
     environment,
     port,
-    debug: true
+    debug
   });
 });
 
